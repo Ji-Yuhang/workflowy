@@ -8,47 +8,86 @@ class AppView extends Component {
     console.log('AppView props', props)
     let strs = "abcdefghigklmnopqrst"
     let strArray = strs.split("")
-    // let nodes = []
-    // _.forEach(strArray,(v,k)=>{
-    //   console.log(k,v)
-    //   nodes.push({
-    //     id: k,
-    //     text: v
-    //   })
-    // })
+
+    // this.state = {
+    //   data: {children:[{id: 'default'}]},
+    // }
+    this.buildDefaultData();
+    
+    if (false) this.buildTestData();
+  }
+  componentWillMount = () => {
+    const json = localStorage.getItem("NodeJSON");
+    if (json) {
+      this.parseJson(json);
+    } else {
+      this.buildDefaultData();
+    }
+    
+
+    document.onkeydown = (e) => {
+      let currKey=0;
+      e=e||event;   
+      currKey=e.keyCode||e.which||e.charCode;//支持IE、FF   
+      if (currKey == 83 && e.ctrlKey){
+        console.log('Ctrl + S, save',e,event)
+        this.save();
+           if(event){  
+               e.returnValue = false;   
+           }else{                      
+               e.preventDefault();  
+           }
+      }  
+    // if(currKey==27){ // 按 Esc   
+    //        //要做的事情  
+    //  }  
+    //  if(currKey==113){ // 按 F2   
+    //         //要做的事情  
+    //   }
+    };
+  }
+  componentWillUnmount = () => {
+    this.save();
+  }
+  save = () => {
+    const json = this.toJson()
+    localStorage.setItem("NodeJSON", json);
+    
+  }
+  
+  
+  
+  buildTestData = () => {
     let originData = [
+      {
+        id: 1,
+        text: '1',
+        children: [
           {
-            id: 1,
-            text: '1',
-            children: [
-              {
-                id: 2,
-                text: '2',
-              },
-              {
-                id: 3,
-                text: '3',
-              },
-            ]
+            id: 2,
+            text: '2',
           },
           {
-            id: 4,
-            text: '4',
-            children: [
-              {
-                id: 5,
-                text: '5',
-              },
-              {
-                id: 6,
-                text: '6',
-              },
-            ]
-          }
-        ];
-   
-    // let releations = {}
-    // releations
+            id: 3,
+            text: '3',
+          },
+        ]
+      },
+      {
+        id: 4,
+        text: '4',
+        children: [
+          {
+            id: 5,
+            text: '5',
+          },
+          {
+            id: 6,
+            text: '6',
+          },
+        ]
+      }
+    ];
     let {nodes, releations} = this.parseOriginData({id: 'root'}, originData)
     let rootNode = {id: 'root'}
     this.generateStateData(rootNode, nodes, releations)
@@ -57,39 +96,42 @@ class AppView extends Component {
       nodes,
       releations
     }
-    // this.state = {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       text: 'a',
-    //       children: [
-    //         {
-    //           id: 2,
-    //           text: 'b',
-    //         },
-    //         {
-    //           id: 3,
-    //           text: 'c',
-    //         },
-    //       ]
-    //     },
-    //     {
-    //       id: 4,
-    //       text: 'a',
-    //       children: [
-    //         {
-    //           id: 5,
-    //           text: 'b',
-    //         },
-    //         {
-    //           id: 6,
-    //           text: 'c',
-    //         },
-    //       ]
-    //     }
-    //   ],
-    //   version: 1
-    // }
+  }
+
+  buildDefaultData = () => {
+    let originData = [
+      {
+        id: 'default',
+        text: '',
+      }
+    ];
+    let {nodes, releations} = this.parseOriginData({id: 'root'}, originData)
+    let rootNode = {id: 'root'}
+    this.generateStateData(rootNode, nodes, releations)
+    this.state = {
+      data: rootNode,
+      nodes,
+      releations,
+      focusId: 'default',
+    }
+  }
+
+  toJson = () => {
+    const {data,node,releations} = this.state;
+    const json = JSON.stringify(data.children);
+    return json;
+  }
+
+  parseJson = (json) => {
+    const object = JSON.parse(json)
+    let {nodes, releations} = this.parseOriginData({id: 'root'}, object)
+    let rootNode = {id: 'root'}
+    this.generateStateData(rootNode, nodes, releations)
+    this.setState({
+      data: rootNode,
+      nodes,
+      releations
+    })
   }
   
   parseOriginData = (root,data) => {
@@ -207,7 +249,7 @@ class AppView extends Component {
       data: rootNode,
       nodes,
       releations
-    })
+    }, () => this.save())
     
     // let temp = data
     // while(!_.isEmpty(temp)) {
@@ -377,7 +419,7 @@ class AppView extends Component {
       data: rootNode,
       nodes,
       releations
-    })
+    }, () => this.save())
    
     // _.flattenDeep(data).find( (obj)=> obj.id == id).text = text
     // this.setState({data})
@@ -432,7 +474,7 @@ class AppView extends Component {
     
   }
   onFocusChanged = (id, isFocus)=> {
-    console.log('onFocusChanged',id, isFocus)
+    // console.log('onFocusChanged',id, isFocus)
     let {focusId} = this.state
     if (isFocus) focusId = id
     else focusId = null
@@ -447,16 +489,19 @@ class AppView extends Component {
     let new_releation = {id: new_id}
     let node = _.find(releations,(d)=> d.id == id)
     let firstChild = _.find(releations,(d)=> d.parent_id == id && d.left_id == null)
-    let rightNode = _.find(releations,(d)=> d.parent_id == id && d.left_id == id)
+    let rightNode = _.find(releations,(d)=> d.parent_id == node.parent_id && d.left_id == id)
     
     if (firstChild){
       // 插入第一个孩子位置
+      console.log('插入第一个孩子位置', node ,firstChild)
       new_releation.parent_id = node.id
       new_releation.left_id = null
       new_releation.right_id = firstChild.id
       firstChild.left_id = new_releation.id
     } else {
       // 插入当前位置后面
+      console.log('插入当前位置后面', node ,rightNode)
+      
       new_releation.parent_id = node.parent_id
       new_releation.left_id = node.id
       new_releation.right_id = null
@@ -479,7 +524,7 @@ class AppView extends Component {
       nodes,
       releations,
       focusId: new_releation.id
-    })
+    }, () => this.save())
     console.log('end onPressEnter setState' ,rootNode,nodes, _.cloneDeep(releations))
     this.printReleations(_.cloneDeep(releations))
     

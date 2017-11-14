@@ -39,18 +39,18 @@ class NodeView extends Component {
     }  
   }
   onBlur = (e)=>{
-    console.log('onBlur',e)
+    // console.log('onBlur',e)
     const {onFocusChanged,id} = this.props
     if(onFocusChanged)onFocusChanged(id, false)
   }
   onFocus = (e)=>{
     const {onFocusChanged,id} = this.props    
-    console.log('onFocus',e)
+    // console.log('onFocus',e)
     if(onFocusChanged)onFocusChanged(id, true)
   }
   onPressEnter = (e)=>{
     const {onPressEnter,id} = this.props    
-    console.log('onPressEnter',e)
+    // console.log('onPressEnter',e)
     if(onPressEnter)onPressEnter(id)
     
   }
@@ -59,7 +59,7 @@ class NodeView extends Component {
     
     return (
       <div style={{
-        marginLeft: 10,
+        marginLeft: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -84,11 +84,11 @@ class NodeView extends Component {
              justifyContent: 'center',
              }}>
         <div style={{
-              border: '4px solid #666',
-    '-webkit-border-radius': 4,
-    '-moz-border-radius': 4,
-    '-ms-border-radius': 4,
-    borderRadius: 4,}}></div></div>
+              border: '3px solid #666',
+    '-webkit-border-radius': 3,
+    '-moz-border-radius': 3,
+    '-ms-border-radius':3,
+    borderRadius: 3,}}></div></div>
         {/* <Badge status="default"/> */}
         <Input
           style={{
@@ -109,8 +109,11 @@ class NodeView extends Component {
     )
   }
   render() {
-    const {root, text, children, onTextChange, onTabChange,focusId,onFocusChanged,onPressEnter} = this.props
+    const {root, text, children, onTextChange, onTabChange,focusId,onFocusChanged,onPressEnter, id} = this.props
     const borderLeft = root ? '0px solid #e5e5e5' : '1px solid #e5e5e5'
+    const borderColor = focusId == id ? '#c8c8c8' : '#e5e5e5'
+    
+    
     return (
       <div style={{
         display: 'flex',
@@ -126,7 +129,8 @@ class NodeView extends Component {
           style={{
           marginLeft: 15,
           paddingLeft: 15,
-          borderLeft: borderLeft
+          borderLeft: borderLeft,
+          borderColor: borderColor,
         }}>
           {_.map(children, (node) => {
             return (
