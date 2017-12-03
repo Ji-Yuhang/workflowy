@@ -1,12 +1,42 @@
 import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import {Affix, Button, Badge, Input} from 'antd';
-
+// import jquery from 'jquery';
+// window.$ = jquery
 class NodeView extends Component {
   constructor(props) {
     super(props);
+    
     // console.log('NodeView props', props)
 
+  }
+  componentWillReceiveProps(props) {
+    if (props){
+      this.props = props;
+      const {focusId, id} = props
+      if (id && focusId &&id == focusId){
+        // console.log('will focus self:', id, focusId, this);
+        // let input_id = `input_of_${id}`;
+        // let element = document.getElementById(input_id);
+        // console.log('getElementById', input_id, element, jquery(`${input_id}`));
+        // jquery(`${input_id}`).focus();
+        // setTimeout(()=>{
+        //   element.focus();
+        // }, 200)
+        // jquery(input_id);
+        
+        // element.focus();
+        // ReactDOM.findDOMNode(input_id).focus();
+
+        // this.refs.input.auto
+        // this.refs.input.refs.input.focus(true);
+        // this.refs.input.focus(true);
+        
+        
+      }
+
+    }
   }
   onChange = (e) => {
     const {root, children,onTextChange, id} = this.props
@@ -18,7 +48,7 @@ class NodeView extends Component {
     }
   }
   onKeyDown = (e)=> {
-    const {root, children,onTextChange,onTabChange, id} = this.props
+    const {root, children,onTextChange,onTabChange, id, onDelete, onDirectionChange} = this.props
     const text = e.target.text
     const target = e.target
     const {key, keyCode, shiftKey,ctrlKey, altKey} = e
@@ -36,7 +66,23 @@ class NodeView extends Component {
         onTabChange(id, false)
         e.preventDefault();
       }
-    }  
+    }
+    if (keyCode == 8 && _.isEmpty(this.props.text)){
+      // console.log("Backspace clicked");
+      if (onDelete) {
+        onDelete(id)
+        e.preventDefault();
+      }
+    }
+    if (keyCode >= 37 && keyCode <= 40 && onDirectionChange ) {
+      const temp ={
+        '37': 'left',
+        '38': 'up',
+        '39': 'right',
+        '40': 'down'
+      }
+      onDirectionChange(id, temp[keyCode.toString()])
+    }
   }
   onBlur = (e)=>{
     // console.log('onBlur',e)
@@ -91,6 +137,8 @@ class NodeView extends Component {
     borderRadius: 3,}}></div></div>
         {/* <Badge status="default"/> */}
         <Input
+          id={`input_of_${id}`}
+          ref='input' 
           style={{
             borderWidth: 0,
           }}
@@ -109,7 +157,7 @@ class NodeView extends Component {
     )
   }
   render() {
-    const {root, text, children, onTextChange, onTabChange,focusId,onFocusChanged,onPressEnter, id} = this.props
+    const {root, text, children, onTextChange, onTabChange,focusId,onFocusChanged, onDirectionChange,onPressEnter, id, onDelete} = this.props
     const borderLeft = root ? '0px solid #e5e5e5' : '1px solid #e5e5e5'
     const borderColor = focusId == id ? '#c8c8c8' : '#e5e5e5'
     
@@ -135,7 +183,7 @@ class NodeView extends Component {
           {_.map(children, (node) => {
             return (
               <div key={node.id}>
-                <NodeView id={node.id} text={node.text} children={node.children} onTextChange={onTextChange} onTabChange={onTabChange} focusId={focusId} onFocusChanged={onFocusChanged} onPressEnter={onPressEnter}/>
+                <NodeView id={node.id} text={node.text} children={node.children} onTextChange={onTextChange} onTabChange={onTabChange} focusId={focusId} onFocusChanged={onFocusChanged} onPressEnter={onPressEnter} onDelete={onDelete} onDirectionChange={onDirectionChange}/>
               </div>
             )
           })

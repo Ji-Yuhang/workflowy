@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import _ from 'lodash';
 import {Affix, Button} from 'antd';
 import NodeView from './NodeView';
+import { relativeTimeRounding } from 'moment';
 class AppView extends Component {
   constructor(props) {
     super(props);
@@ -474,7 +475,7 @@ class AppView extends Component {
     
   }
   onFocusChanged = (id, isFocus)=> {
-    // console.log('onFocusChanged',id, isFocus)
+    console.log('onFocusChanged',id, isFocus)
     let {focusId} = this.state
     if (isFocus) focusId = id
     else focusId = null
@@ -517,8 +518,12 @@ class AppView extends Component {
     
 
 
-    let rootNode = {id: 'root'}    
+    let rootNode = {id: 'root'}
+    console.log('begin generateStateData' ,rootNode,nodes, _.cloneDeep(releations))
+    
     this.generateStateData(rootNode, nodes, releations)
+    console.log('after generateStateData' ,rootNode,nodes, _.cloneDeep(releations))
+    
     this.setState({
       data: rootNode,
       nodes,
@@ -529,10 +534,137 @@ class AppView extends Component {
     this.printReleations(_.cloneDeep(releations))
     
   }
+  onDelete = (id) => {
+    console.log('onDelete', id);
+    let {data, nodes, releations} = this.state
+    console.log('begin----------------------onDelete------------------------------------begin')
+    this.printReleations(_.cloneDeep(releations))
+    console.log('begin onDelete' , _.cloneDeep(releations))  
+    // console.log('clone releations', _.cloneDeep(releations))
+    
+    console.log('onDelete', id)
+    let rootNode = {id: 'root'}
+    // _.find(releations, d => d.id == id).text = text
+    let node = _.find(releations, d => d.id == id)
+    let parentNode =null
+    if(node) parentNode = _.find(releations, d => d.id == node.parent_id)
+    let leftNode =null
+    if(node) leftNode = _.find(releations, d => d.id == node.left_id)
+    let rightNode =null
+    if(node) rightNode = _.find(releations, d => d.id == node.right_id)
+    let parentParentNode = null
+    if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id)
+    
+
+    console.log('curentNode', node)
+    console.log('parentNode', parentNode)
+    console.log('leftNode', leftNode)
+    console.log('rightNode', rightNode)
+    console.log('parentParentNode', parentParentNode)
+    // if (n)
+    if (parentNode.id == 'root' && !leftNode) {
+      console.log('only one node , skip delete ')
+      return
+      
+    }
+    let children = _.find(releations, d => d.parent_id == id)
+    if (_.isEmpty(children)) {
+      // DO Delete
+      console.log(' DO Delete ')
+      // node.parent_id = parentNode.id
+     
+      if (leftNode && rightNode){
+        leftNode.right_id = rightNode.id
+        rightNode.left_id = leftNode.id
+      } else {
+        if (leftNode && !rightNode){
+          leftNode.right_id = null
+        }
+        if (rightNode && !leftNode){
+          rightNode.left_id = null
+        }
+      
+      }
+      let new_releation = null;
+      if (leftNode){
+        new_releation = leftNode
+      } else {
+        if (parentNode) new_releation = parentNode
+      }
+      let focusId = new_releation ? new_releation.id : null
+      this.check(_.clone(releations))
+      
+      this.setState({focusId}, ()=> {
+        releations = _.filter(releations, d => d.id != id)
+        nodes = _.filter(nodes, d => d.id != id)
+        // this.setState({releations, nodes})
+        // let rootNode = {id: 'root'}    
+        this.generateStateData(rootNode, nodes, releations)
+        this.setState({
+          data: rootNode,
+          nodes,
+          releations,
+          focusId
+        }, () => this.save())
+        this.domFocus(focusId);
+        console.log('end onDelete setState' ,rootNode,nodes, _.cloneDeep(releations), focusId)
+        this.printReleations(_.cloneDeep(releations))
+      })
+      
+     
+      
+    }
+    
+  }
+  onDirectionChange = (id, direction)=> {
+    console.log('onDirectionChange' , id, direction);
+    let {data, nodes, releations} = this.state
+    // console.log('begin----------------------onDirectionChange------------------------------------begin')
+    // this.printReleations(_.cloneDeep(releations))
+    // console.log('begin onDirectionChange' , _.cloneDeep(releations))  
+    // console.log('clone releations', _.cloneDeep(releations))
+    
+    // console.log('onDirectionChange', id)
+    let rootNode = {id: 'root'}
+    // _.find(releations, d => d.id == id).text = text
+    let node = _.find(releations, d => d.id == id)
+    let parentNode =null
+    if(node) parentNode = _.find(releations, d => d.id == node.parent_id)
+    let leftNode =null
+    if(node) leftNode = _.find(releations, d => d.id == node.left_id)
+    let rightNode =null
+    if(node) rightNode = _.find(releations, d => d.id == node.right_id)
+    let parentParentNode = null
+    if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id)
+    
+    let focusId = null
+    if (direction == 'up'){
+      if (leftNode) focusId = leftNode.id
+      if (!leftNode && parentNode) focusId = parentNode.id
+      if(focusId) this.setState({focusId}, ()=>{this.domFocus(focusId)})
+    }
+    if (direction == 'down'){
+      focusId = null      
+      if (rightNode) focusId = rightNode.id
+      if(focusId) this.setState({focusId}, ()=>{this.domFocus(focusId)})
+    }
+
+    
+  }
+  domFocus = (id) => {
+    let input_id = `input_of_${id}`;    
+    let element = document.getElementById(input_id);
+    console.log('domFocus', id, input_id, element)
+    if (!id) return;
+    // if(!ele)
+    setTimeout(()=>{
+      if(element) element.focus();
+    }, 0)
+  }
   render() {
     return (
       <div>
-        <NodeView root={true} children={this.state.data.children} onTabChange={this.onTabChange} onTextChange={this.onTextChange} focusId={this.state.focusId} onFocusChanged={this.onFocusChanged} onPressEnter={this.onPressEnter}/>
+        <NodeView root={true} children={this.state.data.children} onTabChange={this.onTabChange} onTextChange={this.onTextChange} focusId={this.state.focusId} onFocusChanged={this.onFocusChanged} onPressEnter={this.onPressEnter} onDelete={this.onDelete} onDirectionChange={this.onDirectionChange}/>
       </div>
     )
   }
