@@ -636,6 +636,7 @@ class AppView extends Component {
     if(node) rightNode = _.find(releations, d => d.id == node.right_id)
     let parentParentNode = null
     if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id)
+    let childFirstId = releations.filter(d => d.parent_id == node.id && d.left_id == null)[0]
     
     let focusId = null
     if (direction == 'up'){
@@ -646,6 +647,8 @@ class AppView extends Component {
     if (direction == 'down'){
       focusId = null      
       if (rightNode) focusId = rightNode.id
+      if (!rightNode && childFirstId && childFirstId.id) focusId = childFirstId.id
+      
       if(focusId) this.setState({focusId}, ()=>{this.domFocus(focusId)})
     }
 
