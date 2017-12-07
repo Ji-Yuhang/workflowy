@@ -3,6 +3,9 @@ import _ from 'lodash';
 import {Affix, Button} from 'antd';
 import NodeView from './NodeView';
 import { relativeTimeRounding } from 'moment';
+import request from '../utils/request';
+import { saveWorkflowy, getDefaultWorkflowy, getWorkflowyByVersion} from '../services/workflowyService';
+
 class AppView extends Component {
   constructor(props) {
     super(props);
@@ -18,6 +21,17 @@ class AppView extends Component {
     if (false) this.buildTestData();
   }
   componentWillMount = () => {
+    getDefaultWorkflowy()
+    .then((data)=>{
+      const {id, workflowy, version} = data
+      console.log('getDefaultWorkflowy success data', data)
+      if (workflowy && workflowy.node_json){
+        this.parseJson(json);        
+      }
+    })
+    .catch((error)=>{
+      console.log('getDefaultWorkflowy error', error)
+    })
     const json = localStorage.getItem("NodeJSON");
     if (json) {
       this.parseJson(json);
@@ -53,6 +67,29 @@ class AppView extends Component {
   save = () => {
     const json = this.toJson()
     localStorage.setItem("NodeJSON", json);
+    
+    // let headers = {
+    //   "Authentication-Token": '',
+    //   'Access-Control-Allow-Origin': '*.*',
+    //   'Content-Type': 'application/json',
+    //   'Accept': 'application/json',
+    // }
+    // request(`/api/v1/workflowy`, {
+    //   method: 'post',
+    //   headers,
+    //   body: JSON.stringify({
+    //     node_json: json,
+    //     version: 1
+    //   })
+    // })
+
+    saveWorkflowy({node_json: json, version: 1})
+    .then((data)=>{
+      console.log('success data', data)
+    })
+    .catch((error)=>{
+      console.log('error', error)
+    })
     
   }
   
