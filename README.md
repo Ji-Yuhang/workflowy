@@ -1,5 +1,5 @@
 # React 模仿 workflowy 和　国内的幕布
-
+# 当前版本充满了大量的 Bug, 不能正常使用
 ## workflowy
 [workflowy](http://www.workflowy.com/)
 ## 幕布
