@@ -49,6 +49,14 @@ class NodeView extends Component {
             onTextChange(id, text);
         }
     };
+    onNodeClick = (e) => {
+        const { root, children, onTextChange, onNodeClick, id } = this.props;
+
+        console.log("NodeView::onNodeClick", id, this.props, this.props.onNodeClick)
+        if (this.props.onNodeClick) {
+            this.props.onNodeClick(id);
+        }
+    };
     onKeyDown = (e) => {
         const { root, children, onTextChange, onTabChange, id, onDelete, onDirectionChange } = this.props;
         const text = e.target.text;
@@ -116,7 +124,9 @@ class NodeView extends Component {
 
             }}>
 
-                <div style={{
+                <div
+                    onClick={this.onNodeClick}
+                    style={{
                     width: 30,
                     height: 30,
                     '-webkit-border-radius': 9,
@@ -190,6 +200,7 @@ class NodeView extends Component {
                         return (
                             <div key={node.id}>
                                 <NodeView id={node.id} text={node.text} children={node.children}
+                                          onNodeClick={this.props.onNodeClick}
                                           onTextChange={onTextChange} onTabChange={onTabChange}
                                           focusId={focusId} onFocusChanged={onFocusChanged}
                                           onPressEnter={onPressEnter} onDelete={onDelete}

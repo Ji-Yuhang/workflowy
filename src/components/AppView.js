@@ -7,7 +7,8 @@ import request from '../utils/request';
 import {
     saveWorkflowy,
     getDefaultWorkflowy,
-    getWorkflowyByVersion
+    getWorkflowyByVersion,
+    generateUuid
 } from '../services/workflowyService';
 class Tree extends React.PureComponent {
     constructor(props){
@@ -241,33 +242,64 @@ class AppView extends Component {
     generateStateData = (root, nodes, releations) => {
         const node = root;
         let parentNode = null;
-        if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
         let leftNode = null;
-        if (node) leftNode = _.find(releations, d => d.id == node.left_id);
         let rightNode = null;
-        if (node) rightNode = _.find(releations, d => d.id == node.right_id);
         let parentParentNode = null;
-        if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
+
+        // if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
+        // if (node) parentNode = _(releations).find({ id: node.parent_id })
+        // if (node) leftNode = _.find(releations, d => d.id == node.left_id);
+        // if (node) rightNode = _.find(releations, d => d.id == node.right_id);
+        // if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
+
+        if (node) {
+            parentNode = _(releations).find({ id: node.parent_id })
+            leftNode = _.find(releations, {id: node.left_id});
+            rightNode = _.find(releations, {id: node.right_id});
+            if(parentNode) parentParentNode = _.find(releations, {id: parentNode.parent_id});
+        }
+
+
 
         const data = Array.new;
-        const childrenIds = releations.filter(d => d.parent_id == root.id)
-            .map(d => d.id);
-        const childrenNodes = nodes.filter(d => _.includes(childrenIds, d.id));
-        let childFirstId = releations.filter(d => d.parent_id == root.id && d.left_id == null)[0];
+        // const childrenIds = releations.filter(d => d.parent_id == root.id)
+        //     .map(d => d.id);
+        const childrenIds = _(releations).filter({parent_id: root.id}).map("id")
+        const childrenNodes = _(nodes).filter(d => _.includes(childrenIds, d.id))
+        // const childrenNodes = nodes.filter(d => _.includes(childrenIds, d.id));
+        // let childFirstId = releations.filter(d => d.parent_id == root.id && d.left_id == null)[0];
+        let childFirstId = _(releations).find(d => d.parent_id == root.id && !d.left_id)
         let childFirstNode = null;
-        if (childFirstId) childFirstNode = _.find(nodes, d => d.id == childFirstId.id);
+        if (childFirstId) childFirstNode = _.find(nodes, {id: childFirstId.id});
         // console.log(childFirstId, childFirstNode)
-        const chainChildren = new Array();
+        let chainChildren = new Array();
+        let set = new Set
+        if(childFirstId) set.add(childFirstId.right_id)
         while (childFirstId && childFirstNode) {
-            // console.log('while',childFirstId, childFirstNode)
+            console.log('while',childFirstId, childFirstNode)
 
             chainChildren.push(_.clone(childFirstNode));
-            childFirstId = _.find(releations, d => d.id == childFirstId.right_id);
+            chainChildren = _.uniqBy(chainChildren, 'id')
+            childFirstId = _.find(releations, {id: childFirstId.right_id});
+            if (childFirstId){
+                if (set.has(childFirstId.right_id)) {
+                    console.error("发生死循环了1！！！", root, nodes, releations, childFirstId, childFirstNode);
+                    throw '发生死循环了'
+                    // raise()
+                } else {
+                    set.add(childFirstId.right_id)
+                }
+            }
             childFirstNode = null;
-            if (childFirstId) childFirstNode = _.find(nodes, d => d.id == childFirstId.id);
+            if (childFirstId) childFirstNode = _.find(nodes, {id: childFirstId.id});
         }
+        chainChildren = _.uniqBy(chainChildren, 'id')
+        console.log("chainChildren: ", chainChildren)
         _.forEach(chainChildren, (tempNode) => {
-            if (tempNode == root) alert('死循环了');
+            if (tempNode.id == root.id){
+                console.log("死循环了",root, chainChildren, tempNode)
+                alert('死循环了');
+            }
             this.generateStateData(tempNode, nodes, releations);
         });
         root.children = chainChildren;
@@ -284,8 +316,21 @@ class AppView extends Component {
         //   releations
         // }
     };
+    onNodeClick = (id)=>{
+        console.log("onNodeClick: ", id)
+        let { data, nodes, releations } = this.state;
+        // const rootNode = { id: 'root' };
+        let clickedNode = _.find(nodes, {id: id})
+        this.generateStateData(clickedNode, nodes, releations);
+        console.log('onNodeClick: root', clickedNode)
+        this.setState({
+            data: clickedNode,
+            nodes,
+            releations,
+        }, () => this.save());
+    };
     onTextChange = (id, text) => {
-        const { data, nodes, releations } = this.state;
+        let { data, nodes, releations } = this.state;
         console.log('onTextChange', id, text, data);
         const rootNode = { id: 'root' };
         _.find(nodes, d => d.id == id).text = text;
@@ -511,23 +556,29 @@ class AppView extends Component {
     onPressEnter = (id) => {
         console.log('onPressEnter', id);
         let { data, nodes, releations } = this.state;
-        const new_id = _.uniqueId('new_');
+        // const new_id = _.uniqueId('new_');
+
+        const new_id = generateUuid();
+        if ( _(releations).map("id").includes(new_id)){
+            alert("UUID 冲突")
+            throw "UUID冲突"
+        }
         nodes = _.concat(nodes, [{ id: new_id, text: '' }]);
-        const new_releation = { id: new_id };
-        const node = _.find(releations, d => d.id == id);
-        const firstChild = _.find(releations, d => d.parent_id == id && d.left_id == null);
-        const rightNode = _.find(releations, d => d.parent_id == node.parent_id && d.left_id == id);
+        let new_releation = { id: new_id };
+        let node = _.find(releations, {id: id});
+        let firstChild = _.find(releations, d => d.parent_id == id && !d.left_id);
+        let rightNode = _.find(releations, d => d.parent_id == node.parent_id && d.left_id == id);
 
         if (firstChild) {
             // 插入第一个孩子位置
-            console.log('插入第一个孩子位置', node, firstChild);
+            console.log('插入第一个孩子位置', node, firstChild, new_releation);
             new_releation.parent_id = node.id;
             new_releation.left_id = null;
             new_releation.right_id = firstChild.id;
             firstChild.left_id = new_releation.id;
         } else {
             // 插入当前位置后面
-            console.log('插入当前位置后面', node, rightNode);
+            console.log('插入当前位置后面', node, rightNode, new_releation);
 
             new_releation.parent_id = node.parent_id;
             new_releation.left_id = node.id;
@@ -693,6 +744,7 @@ class AppView extends Component {
 
 
                     <NodeView root children={this.state.data.children} onTabChange={this.onTabChange}
+                          onNodeClick={this.onNodeClick}
                           onTextChange={this.onTextChange} focusId={this.state.focusId}
                           onFocusChanged={this.onFocusChanged} onPressEnter={this.onPressEnter}
                           onDelete={this.onDelete} onDirectionChange={this.onDirectionChange}/>

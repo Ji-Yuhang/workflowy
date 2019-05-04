@@ -21,6 +21,7 @@
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
     "standard-http-error": "^2.0.1",
+    "uuid": "^3.3.2",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
