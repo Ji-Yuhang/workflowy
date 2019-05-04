@@ -8,7 +8,12 @@ import {
     saveWorkflowy,
     getDefaultWorkflowy,
     getWorkflowyByVersion,
-    generateUuid
+    generateUuid,
+    getAllRelations,
+    getAllNodes,
+    getNodesByIds,
+    saveAllNodes,
+    saveAllRelations,
 } from '../services/workflowyService';
 class Tree extends React.PureComponent {
     constructor(props){
@@ -31,23 +36,68 @@ class AppView extends Component {
     }
 
     componentWillMount = () => {
-        getDefaultWorkflowy()
-            .then((data) => {
-                const { id, workflowy, version } = data;
-                console.log('getDefaultWorkflowy success data', data);
-                if (workflowy && workflowy.node_json) {
-                    this.parseJson(json);
-                }
-            })
-            .catch((error) => {
-                console.log('getDefaultWorkflowy error', error);
+        // getDefaultWorkflowy()
+        //     .then((data) => {
+        //         const { id, workflowy, version } = data;
+        //         console.log('getDefaultWorkflowy success data', data);
+        //         if (workflowy && workflowy.node_json) {
+        //             this.parseJson(json);
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         console.log('getDefaultWorkflowy error', error);
+        //     });
+        // const json = localStorage.getItem('NodeJSON');
+        // if (json) {
+        //     this.parseJson(json);
+        // } else {
+        //     this.buildDefaultData();
+        // }
+        // Promise
+        let relations = null;
+        let nodes = null;
+        getAllRelations().then((data)=>{
+            // const {relations} = data;
+            relations = data.relations
+            console.log("getAllRelations return ", relations, data)
+            return relations;
+        }).then((relations)=>{
+            const ids = _(relations).map("id")
+
+            console.log("getAllRelations ids ", ids)
+
+            return getNodesByIds(ids)
+        }).then((data)=>{
+            // const {nodes} = data
+            nodes = data.nodes
+            console.log("getNodesByIds return ", nodes, data)
+
+            const rootNode = { id: 'root' };
+            this.generateStateData(rootNode, nodes, relations);
+            this.setState({
+                data: rootNode,
+                nodes,
+                relations: relations,
             });
-        const json = localStorage.getItem('NodeJSON');
-        if (json) {
-            this.parseJson(json);
-        } else {
-            this.buildDefaultData();
-        }
+
+        }).catch((error)=>{
+                console.error("Promise.all", error)
+        })
+
+        // Promise.all([getAllNodes(), getAllRelations()]).then(function(values) {
+        //     console.log("Promise.all", values);
+        // }).catch((error)=>{
+        //     console.error("Promise.all", error)
+        // });
+        // getAllNodes()
+        // const rootNode = { id: 'root' };
+        // this.generateStateData(rootNode, nodes, relations);
+        // this.setState({
+        //     data: rootNode,
+        //     nodes,
+        //     relations,
+        // });
+
 
 
         document.onkeydown = (e) => {
@@ -100,6 +150,8 @@ class AppView extends Component {
             .catch((error) => {
                 console.log('error', error);
             });
+        saveAllRelations(this.state.relations)
+        saveAllNodes(this.state.nodes)
     };
 
 
@@ -134,13 +186,13 @@ class AppView extends Component {
                 ],
             },
         ];
-        const { nodes, releations } = this.parseOriginData({ id: 'root' }, originData);
+        const { nodes, relations } = this.parseOriginData({ id: 'root' }, originData);
         const rootNode = { id: 'root' };
-        this.generateStateData(rootNode, nodes, releations);
+        this.generateStateData(rootNode, nodes, relations);
         this.state = {
             data: rootNode,
             nodes,
-            releations,
+            relations,
         };
     };
 
@@ -151,41 +203,41 @@ class AppView extends Component {
                 text: '',
             },
         ];
-        const { nodes, releations } = this.parseOriginData({ id: 'root' }, originData);
+        const { nodes, relations } = this.parseOriginData({ id: 'root' }, originData);
         const rootNode = { id: 'root' };
-        this.generateStateData(rootNode, nodes, releations);
+        this.generateStateData(rootNode, nodes, relations);
         this.state = {
             data: rootNode,
             nodes,
-            releations,
+            relations,
             focusId: 'default',
         };
     };
 
     toJson = () => {
-        const { data, node, releations } = this.state;
+        const { data, node, relations } = this.state;
         const json = JSON.stringify(data.children);
         return json;
     };
 
     parseJson = (json) => {
         const object = JSON.parse(json);
-        const { nodes, releations } = this.parseOriginData({ id: 'root' }, object);
+        const { nodes, relations } = this.parseOriginData({ id: 'root' }, object);
         const rootNode = { id: 'root' };
-        this.generateStateData(rootNode, nodes, releations);
+        this.generateStateData(rootNode, nodes, relations);
         this.setState({
             data: rootNode,
             nodes,
-            releations,
+            relations,
         });
     };
 
     parseOriginData = (root, data) => {
         let nodes = [];
-        let releations = [];
+        let relations = [];
         if (root.id == 'root') {
             nodes.push(root);
-            releations.push({ id: 'root', parent: null, left_id: null, right_id: null });
+            relations.push({ id: 'root', parent: null, left_id: null, right_id: null });
         }
 
 
@@ -194,7 +246,7 @@ class AppView extends Component {
 
         let lastNode = null;
         // let nextNode = null
-        const levelReleations = _.map(levelNodes, ((node) => {
+        const levelrelations = _.map(levelNodes, ((node) => {
             let left_id = null;
             const right_id = null;
             if (lastNode) {
@@ -214,13 +266,13 @@ class AppView extends Component {
             );
         }));
         lastNode = null;
-        _.forEach(levelReleations, (node, k) => {
+        _.forEach(levelrelations, (node, k) => {
             if (lastNode && node.left_id == lastNode.id) {
                 lastNode.right_id = node.id;
             }
             lastNode = node;
         });
-        releations = _.concat(releations, levelReleations);
+        relations = _.concat(relations, levelrelations);
 
         // let children = data.map(d => _.omit(d,['children']))
         data.map((d) => {
@@ -228,7 +280,7 @@ class AppView extends Component {
             if (!_.isEmpty(children)) {
                 const result = this.parseOriginData(d, children);
                 nodes = _.concat(nodes, result.nodes);
-                releations = _.concat(releations, result.releations);
+                relations = _.concat(relations, result.relations);
             }
         });
 
@@ -236,39 +288,39 @@ class AppView extends Component {
         // nodes.push(data.)
         return ({
             nodes,
-            releations,
+            relations,
         });
     };
-    generateStateData = (root, nodes, releations) => {
+    generateStateData = (root, nodes, relations) => {
         const node = root;
         let parentNode = null;
         let leftNode = null;
         let rightNode = null;
         let parentParentNode = null;
 
-        // if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
-        // if (node) parentNode = _(releations).find({ id: node.parent_id })
-        // if (node) leftNode = _.find(releations, d => d.id == node.left_id);
-        // if (node) rightNode = _.find(releations, d => d.id == node.right_id);
-        // if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
+        // if (node) parentNode = _.find(relations, d => d.id == node.parent_id);
+        // if (node) parentNode = _(relations).find({ id: node.parent_id })
+        // if (node) leftNode = _.find(relations, d => d.id == node.left_id);
+        // if (node) rightNode = _.find(relations, d => d.id == node.right_id);
+        // if (parentNode) parentParentNode = _.find(relations, d => d.id == parentNode.parent_id);
 
         if (node) {
-            parentNode = _(releations).find({ id: node.parent_id })
-            leftNode = _.find(releations, {id: node.left_id});
-            rightNode = _.find(releations, {id: node.right_id});
-            if(parentNode) parentParentNode = _.find(releations, {id: parentNode.parent_id});
+            parentNode = _(relations).find({ id: node.parent_id })
+            leftNode = _.find(relations, {id: node.left_id});
+            rightNode = _.find(relations, {id: node.right_id});
+            if(parentNode) parentParentNode = _.find(relations, {id: parentNode.parent_id});
         }
 
 
 
         const data = Array.new;
-        // const childrenIds = releations.filter(d => d.parent_id == root.id)
+        // const childrenIds = relations.filter(d => d.parent_id == root.id)
         //     .map(d => d.id);
-        const childrenIds = _(releations).filter({parent_id: root.id}).map("id")
+        const childrenIds = _(relations).filter({parent_id: root.id}).map("id")
         const childrenNodes = _(nodes).filter(d => _.includes(childrenIds, d.id))
         // const childrenNodes = nodes.filter(d => _.includes(childrenIds, d.id));
-        // let childFirstId = releations.filter(d => d.parent_id == root.id && d.left_id == null)[0];
-        let childFirstId = _(releations).find(d => d.parent_id == root.id && !d.left_id)
+        // let childFirstId = relations.filter(d => d.parent_id == root.id && d.left_id == null)[0];
+        let childFirstId = _(relations).find(d => d.parent_id == root.id && !d.left_id)
         let childFirstNode = null;
         if (childFirstId) childFirstNode = _.find(nodes, {id: childFirstId.id});
         // console.log(childFirstId, childFirstNode)
@@ -280,10 +332,10 @@ class AppView extends Component {
 
             chainChildren.push(_.clone(childFirstNode));
             chainChildren = _.uniqBy(chainChildren, 'id')
-            childFirstId = _.find(releations, {id: childFirstId.right_id});
+            childFirstId = _.find(relations, {id: childFirstId.right_id});
             if (childFirstId){
                 if (set.has(childFirstId.right_id)) {
-                    console.error("发生死循环了1！！！", root, nodes, releations, childFirstId, childFirstNode);
+                    console.error("发生死循环了1！！！", root, nodes, relations, childFirstId, childFirstNode);
                     throw '发生死循环了'
                     // raise()
                 } else {
@@ -300,45 +352,45 @@ class AppView extends Component {
                 console.log("死循环了",root, chainChildren, tempNode)
                 alert('死循环了');
             }
-            this.generateStateData(tempNode, nodes, releations);
+            this.generateStateData(tempNode, nodes, relations);
         });
         root.children = chainChildren;
 
         // _.forEach(rootNodes, (node)=>{
         //   let children = Array.new
-        //   let rootNodeIds = releations.filter(d => d.parent_id == root.id).map(d=>d.id)
+        //   let rootNodeIds = relations.filter(d => d.parent_id == root.id).map(d=>d.id)
         //   let rootNodes = nodes.filter(d => _.includes(rootNodeIds, d.id))
         //   if (!_.isEmpty(children)) node.children = children
         // })
         // this.state = {
         //   data,
         //   nodes,
-        //   releations
+        //   relations
         // }
     };
     onNodeClick = (id)=>{
         console.log("onNodeClick: ", id)
-        let { data, nodes, releations } = this.state;
+        let { data, nodes, relations } = this.state;
         // const rootNode = { id: 'root' };
         let clickedNode = _.find(nodes, {id: id})
-        this.generateStateData(clickedNode, nodes, releations);
+        this.generateStateData(clickedNode, nodes, relations);
         console.log('onNodeClick: root', clickedNode)
         this.setState({
             data: clickedNode,
             nodes,
-            releations,
+            relations,
         }, () => this.save());
     };
     onTextChange = (id, text) => {
-        let { data, nodes, releations } = this.state;
+        let { data, nodes, relations } = this.state;
         console.log('onTextChange', id, text, data);
         const rootNode = { id: 'root' };
         _.find(nodes, d => d.id == id).text = text;
-        this.generateStateData(rootNode, nodes, releations);
+        this.generateStateData(rootNode, nodes, relations);
         this.setState({
             data: rootNode,
             nodes,
-            releations,
+            relations,
         }, () => this.save());
 
         // let temp = data
@@ -358,44 +410,44 @@ class AppView extends Component {
         // this.setState({data})
         console.log('setState', data);
     };
-    printNode = (releations, node, depth) => {
+    printNode = (relations, node, depth) => {
         const text = _.find(this.state.nodes, n => n.id == node.id).text
         // 此处死循环了
         console.log(_.times(depth, () => '--')
             .join('') + `${''}: ${text}`);
-        const children = _.filter(releations, d => d.parent_id == node.id);
-        let leftNode = _.find(releations, d => d.parent_id == node.id && d.left_id == null);
+        const children = _.filter(relations, d => d.parent_id == node.id);
+        let leftNode = _.find(relations, d => d.parent_id == node.id && d.left_id == null);
         while (leftNode) {
-            this.printNode(releations, leftNode, depth + 1);
-            leftNode = _.find(releations, d => d.parent_id == node.id && d.left_id == leftNode.id);
+            this.printNode(relations, leftNode, depth + 1);
+            leftNode = _.find(relations, d => d.parent_id == node.id && d.left_id == leftNode.id);
         }
         return node;
     };
-    printReleations = (releations) => {
+    printrelations = (relations) => {
         // console.log('')
-        const node = _.find(releations, d => d.id == 'root');
-        this.printNode(releations, node, -1);
+        const node = _.find(relations, d => d.id == 'root');
+        this.printNode(relations, node, -1);
     };
 
     onTabChange = (id, isLeft) => {
-        const { data, nodes, releations } = this.state;
+        let { data, nodes, relations } = this.state;
         console.log('begin----------------------onTabChange------------------------------------begin');
-        this.printReleations(_.cloneDeep(releations));
-        console.log('begin onTabChange　setState', _.cloneDeep(releations));
-        // console.log('clone releations', _.cloneDeep(releations))
+        this.printrelations(_.cloneDeep(relations));
+        console.log('begin onTabChange　setState', _.cloneDeep(relations));
+        // console.log('clone relations', _.cloneDeep(relations))
 
         console.log('onTabChange', id, isLeft ? 'left' : 'right', isLeft);
         const rootNode = { id: 'root' };
-        // _.find(releations, d => d.id == id).text = text
-        const node = _.find(releations, d => d.id == id);
+        // _.find(relations, d => d.id == id).text = text
+        const node = _.find(relations, d => d.id == id);
         let parentNode = null;
-        if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
+        if (node) parentNode = _.find(relations, d => d.id == node.parent_id);
         let leftNode = null;
-        if (node) leftNode = _.find(releations, d => d.id == node.left_id);
+        if (node) leftNode = _.find(relations, d => d.id == node.left_id);
         let rightNode = null;
-        if (node) rightNode = _.find(releations, d => d.id == node.right_id);
+        if (node) rightNode = _.find(relations, d => d.id == node.right_id);
         let parentParentNode = null;
-        if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
+        if (parentNode) parentParentNode = _.find(relations, d => d.id == parentNode.parent_id);
 
 
         console.log('curentNode', node);
@@ -412,7 +464,7 @@ class AppView extends Component {
                     node.right_id = null;
                     node.left_id = node.parent_id;
                     if (leftNode) leftNode.right_id = null;
-                    const parentRightNode = _.find(releations, d => d.id == parentNode.right_id);
+                    const parentRightNode = _.find(relations, d => d.id == parentNode.right_id);
                     if (parentRightNode) {
                         node.right_id = parentRightNode.id;
                         parentRightNode.left_id = node.id;
@@ -433,7 +485,7 @@ class AppView extends Component {
             }
             if (node && !node.left_id) {
                 if (node.parent_id != 'root') {
-                    const childLastId = releations.filter(d => d.parent_id == parentNode.parent_id && d.right_id == null)[0];
+                    let childLastId = relations.filter(d => d.parent_id == parentNode.parent_id && d.right_id == null)[0];
                     let childLastNode = null;
                     if (childLastId) childLastNode = _.find(nodes, d => d.id == childLastId.id);
 
@@ -445,7 +497,7 @@ class AppView extends Component {
                         // node.left_id = parentNode.id
 
                         if (parentNode.right_id) {
-                            const parentRightNode = _.find(releations, d => d.id == parentNode.right_id);
+                            let parentRightNode = _.find(relations, d => d.id == parentNode.right_id);
                             if (parentRightNode) {
                                 node.right_id = parentRightNode.id;
                                 parentRightNode.left_id = node.id;
@@ -466,7 +518,7 @@ class AppView extends Component {
         } else {
             // right => set this.parent = right_id
             if (node && node.left_id) {
-                const childLastId = releations.filter(d => d.parent_id == leftNode.id && d.right_id == null)[0];
+                let childLastId = relations.filter(d => d.parent_id == leftNode.id && d.right_id == null)[0];
                 let childLastNode = null;
                 if (childLastId) childLastNode = _.find(nodes, d => d.id == childLastId.id);
 
@@ -490,54 +542,54 @@ class AppView extends Component {
 
             }
         }
-        this.check(_.clone(releations));
+        this.check(_.clone(relations));
 
-        this.generateStateData(rootNode, nodes, releations);
+        this.generateStateData(rootNode, nodes, relations);
         this.setState({
             data: rootNode,
             nodes,
-            releations,
+            relations,
         }, () => this.save());
 
         // _.flattenDeep(data).find( (obj)=> obj.id == id).text = text
         // this.setState({data})
-        console.log('end onTabChange　setState', rootNode, nodes, _.cloneDeep(releations));
-        this.printReleations(_.cloneDeep(releations));
+        console.log('end onTabChange　setState', rootNode, nodes, _.cloneDeep(relations));
+        this.printrelations(_.cloneDeep(relations));
 
         console.log('end----------------------onTabChange------------------------------------end');
     };
-    check = (releations) => {
-        _.forEach(releations, (v, k) => {
+    check = (relations) => {
+        _.forEach(relations, (v, k) => {
             const temp = _.compact([v.parent_id, v.left_id, v.right_id]);
             if (_.size(temp) != _.size(_.uniq(temp))) {
-                console.log('出错的 releations', releations);
+                console.log('出错的 relations', relations);
                 alert('错误了');
             }
         });
-        const left_ids = _.compact(_.map(releations, d => d.left_id));
-        const right_ids = _.compact(_.map(releations, d => d.right_id));
+        const left_ids = _.compact(_.map(relations, d => d.left_id));
+        const right_ids = _.compact(_.map(relations, d => d.right_id));
         if (_.size(left_ids) != _.size(_.uniq(left_ids))) {
-            console.log('出错的 releations', releations);
+            console.log('出错的 relations', relations);
 
             alert('错误了');
         }
         if (_.size(right_ids) != _.size(_.uniq(right_ids))) {
-            console.log('出错的 releations', releations);
+            console.log('出错的 relations', relations);
 
             alert('错误了');
         }
-        const groups = _.groupBy(releations, d => d.parent_id);
+        const groups = _.groupBy(relations, d => d.parent_id);
         _.forEach(groups, (v, k) => {
             const ids = _.map(v, d => d.id);
             const temp_left_ids = _.compact(_.map(v, d => d.left_id));
             const temp_right_ids = _.compact(_.map(v, d => d.right_id));
             if (_.size(temp_left_ids) != _.size(_.uniq(temp_left_ids))) {
-                console.log('出错的 releations', releations);
+                console.log('出错的 relations', relations);
 
                 alert('错误了');
             }
             if (_.size(temp_right_ids) != _.size(_.uniq(temp_right_ids))) {
-                console.log('出错的 releations', releations);
+                console.log('出错的 relations', relations);
 
                 alert('错误了');
             }
@@ -555,19 +607,19 @@ class AppView extends Component {
     };
     onPressEnter = (id) => {
         console.log('onPressEnter', id);
-        let { data, nodes, releations } = this.state;
+        let { data, nodes, relations } = this.state;
         // const new_id = _.uniqueId('new_');
 
         const new_id = generateUuid();
-        if ( _(releations).map("id").includes(new_id)){
+        if ( _(relations).map("id").includes(new_id)){
             alert("UUID 冲突")
             throw "UUID冲突"
         }
         nodes = _.concat(nodes, [{ id: new_id, text: '' }]);
         let new_releation = { id: new_id };
-        let node = _.find(releations, {id: id});
-        let firstChild = _.find(releations, d => d.parent_id == id && !d.left_id);
-        let rightNode = _.find(releations, d => d.parent_id == node.parent_id && d.left_id == id);
+        let node = _.find(relations, {id: id});
+        let firstChild = _.find(relations, d => d.parent_id == id && !d.left_id);
+        let rightNode = _.find(relations, d => d.parent_id == node.parent_id && d.left_id == id);
 
         if (firstChild) {
             // 插入第一个孩子位置
@@ -590,44 +642,44 @@ class AppView extends Component {
             }
         }
 
-        releations = _.concat(releations, [new_releation]);
+        relations = _.concat(relations, [new_releation]);
 
 
         const rootNode = { id: 'root' };
-        console.log('begin generateStateData', rootNode, nodes, _.cloneDeep(releations));
+        console.log('begin generateStateData', rootNode, nodes, _.cloneDeep(relations));
 
-        this.generateStateData(rootNode, nodes, releations);
-        console.log('after generateStateData', rootNode, nodes, _.cloneDeep(releations));
+        this.generateStateData(rootNode, nodes, relations);
+        console.log('after generateStateData', rootNode, nodes, _.cloneDeep(relations));
 
         this.setState({
             data: rootNode,
             nodes,
-            releations,
+            relations,
             focusId: new_releation.id,
         }, () => this.save());
-        console.log('end onPressEnter setState', rootNode, nodes, _.cloneDeep(releations));
-        this.printReleations(_.cloneDeep(releations));
+        console.log('end onPressEnter setState', rootNode, nodes, _.cloneDeep(relations));
+        this.printrelations(_.cloneDeep(relations));
     };
     onDelete = (id) => {
         console.log('onDelete', id);
-        let { data, nodes, releations } = this.state;
+        let { data, nodes, relations } = this.state;
         console.log('begin----------------------onDelete------------------------------------begin');
-        this.printReleations(_.cloneDeep(releations));
-        console.log('begin onDelete', _.cloneDeep(releations));
-        // console.log('clone releations', _.cloneDeep(releations))
+        this.printrelations(_.cloneDeep(relations));
+        console.log('begin onDelete', _.cloneDeep(relations));
+        // console.log('clone relations', _.cloneDeep(relations))
 
         console.log('onDelete', id);
         const rootNode = { id: 'root' };
-        // _.find(releations, d => d.id == id).text = text
-        const node = _.find(releations, d => d.id == id);
+        // _.find(relations, d => d.id == id).text = text
+        const node = _.find(relations, d => d.id == id);
         let parentNode = null;
-        if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
+        if (node) parentNode = _.find(relations, d => d.id == node.parent_id);
         let leftNode = null;
-        if (node) leftNode = _.find(releations, d => d.id == node.left_id);
+        if (node) leftNode = _.find(relations, d => d.id == node.left_id);
         let rightNode = null;
-        if (node) rightNode = _.find(releations, d => d.id == node.right_id);
+        if (node) rightNode = _.find(relations, d => d.id == node.right_id);
         let parentParentNode = null;
-        if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
+        if (parentNode) parentParentNode = _.find(relations, d => d.id == parentNode.parent_id);
 
 
         console.log('curentNode', node);
@@ -640,7 +692,7 @@ class AppView extends Component {
             console.log('only one node , skip delete ');
             return;
         }
-        const children = _.find(releations, d => d.parent_id == id);
+        const children = _.find(relations, d => d.parent_id == id);
         if (_.isEmpty(children)) {
             // DO Delete
             console.log(' DO Delete ');
@@ -662,47 +714,47 @@ class AppView extends Component {
                 new_releation = leftNode;
             } else if (parentNode) new_releation = parentNode;
             const focusId = new_releation ? new_releation.id : null;
-            this.check(_.clone(releations));
+            this.check(_.clone(relations));
 
             this.setState({ focusId }, () => {
-                releations = _.filter(releations, d => d.id != id);
+                relations = _.filter(relations, d => d.id != id);
                 nodes = _.filter(nodes, d => d.id != id);
-                // this.setState({releations, nodes})
+                // this.setState({relations, nodes})
                 // let rootNode = {id: 'root'}
-                this.generateStateData(rootNode, nodes, releations);
+                this.generateStateData(rootNode, nodes, relations);
                 this.setState({
                     data: rootNode,
                     nodes,
-                    releations,
+                    relations,
                     focusId,
                 }, () => this.save());
                 this.domFocus(focusId);
-                console.log('end onDelete setState', rootNode, nodes, _.cloneDeep(releations), focusId);
-                this.printReleations(_.cloneDeep(releations));
+                console.log('end onDelete setState', rootNode, nodes, _.cloneDeep(relations), focusId);
+                this.printrelations(_.cloneDeep(relations));
             });
         }
     };
     onDirectionChange = (id, direction) => {
         console.log('onDirectionChange', id, direction);
-        const { data, nodes, releations } = this.state;
+        const { data, nodes, relations } = this.state;
         // console.log('begin----------------------onDirectionChange------------------------------------begin')
-        // this.printReleations(_.cloneDeep(releations))
-        // console.log('begin onDirectionChange' , _.cloneDeep(releations))
-        // console.log('clone releations', _.cloneDeep(releations))
+        // this.printrelations(_.cloneDeep(relations))
+        // console.log('begin onDirectionChange' , _.cloneDeep(relations))
+        // console.log('clone relations', _.cloneDeep(relations))
 
         // console.log('onDirectionChange', id)
         const rootNode = { id: 'root' };
-        // _.find(releations, d => d.id == id).text = text
-        const node = _.find(releations, d => d.id == id);
+        // _.find(relations, d => d.id == id).text = text
+        const node = _.find(relations, d => d.id == id);
         let parentNode = null;
-        if (node) parentNode = _.find(releations, d => d.id == node.parent_id);
+        if (node) parentNode = _.find(relations, d => d.id == node.parent_id);
         let leftNode = null;
-        if (node) leftNode = _.find(releations, d => d.id == node.left_id);
+        if (node) leftNode = _.find(relations, d => d.id == node.left_id);
         let rightNode = null;
-        if (node) rightNode = _.find(releations, d => d.id == node.right_id);
+        if (node) rightNode = _.find(relations, d => d.id == node.right_id);
         let parentParentNode = null;
-        if (parentNode) parentParentNode = _.find(releations, d => d.id == parentNode.parent_id);
-        const childFirstId = releations.filter(d => d.parent_id == node.id && d.left_id == null)[0];
+        if (parentNode) parentParentNode = _.find(relations, d => d.id == parentNode.parent_id);
+        const childFirstId = relations.filter(d => d.parent_id == node.id && d.left_id == null)[0];
 
         let focusId = null;
         if (direction == 'up') {
