@@ -43,6 +43,7 @@ export function getNodesByIds(ids){
     return api.post(`/api/v1/workflowy/search_nodes/`, {ids})
 }
 export function setNode(id, node){
+    console.log("setNode", id, node);
     // relation
     return api.post(`/api/v1/workflowy/nodes/${id}`, node)
 }

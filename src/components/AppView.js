@@ -13,7 +13,7 @@ import {
     getAllNodes,
     getNodesByIds,
     saveAllNodes,
-    saveAllRelations,
+    saveAllRelations, setNode,
 } from '../services/workflowyService';
 class Tree extends React.PureComponent {
     constructor(props){
@@ -143,13 +143,13 @@ class AppView extends Component {
         //   })
         // })
 
-        saveWorkflowy({ node_json: json, version: 1 })
-            .then((data) => {
-                console.log('success data', data);
-            })
-            .catch((error) => {
-                console.log('error', error);
-            });
+        // saveWorkflowy({ node_json: json, version: 1 })
+        //     .then((data) => {
+        //         console.log('success data', data);
+        //     })
+        //     .catch((error) => {
+        //         console.log('error', error);
+        //     });
         saveAllRelations(this.state.relations)
         saveAllNodes(this.state.nodes)
     };
@@ -384,14 +384,16 @@ class AppView extends Component {
     onTextChange = (id, text) => {
         let { data, nodes, relations } = this.state;
         console.log('onTextChange', id, text, data);
-        const rootNode = { id: 'root' };
+        // let rootNode = { id: 'root' };
+        let rootNode = _.clone(data);
         _.find(nodes, d => d.id == id).text = text;
         this.generateStateData(rootNode, nodes, relations);
         this.setState({
             data: rootNode,
             nodes,
             relations,
-        }, () => this.save());
+        }, () => setNode(id, {id:id, text: text}));
+        // setNode()
 
         // let temp = data
         // while(!_.isEmpty(temp)) {
@@ -437,7 +439,6 @@ class AppView extends Component {
         // console.log('clone relations', _.cloneDeep(relations))
 
         console.log('onTabChange', id, isLeft ? 'left' : 'right', isLeft);
-        const rootNode = { id: 'root' };
         // _.find(relations, d => d.id == id).text = text
         const node = _.find(relations, d => d.id == id);
         let parentNode = null;
@@ -544,12 +545,15 @@ class AppView extends Component {
         }
         this.check(_.clone(relations));
 
+        // const rootNode = { id: 'root' };
+        let rootNode = _.clone(data);
+
         this.generateStateData(rootNode, nodes, relations);
         this.setState({
             data: rootNode,
             nodes,
             relations,
-        }, () => this.save());
+        }, () => saveAllRelations(this.state.relations));
 
         // _.flattenDeep(data).find( (obj)=> obj.id == id).text = text
         // this.setState({data})
@@ -645,7 +649,8 @@ class AppView extends Component {
         relations = _.concat(relations, [new_releation]);
 
 
-        const rootNode = { id: 'root' };
+        // const rootNode = { id: 'root' };
+        let rootNode = _.clone(data);
         console.log('begin generateStateData', rootNode, nodes, _.cloneDeep(relations));
 
         this.generateStateData(rootNode, nodes, relations);
@@ -669,7 +674,6 @@ class AppView extends Component {
         // console.log('clone relations', _.cloneDeep(relations))
 
         console.log('onDelete', id);
-        const rootNode = { id: 'root' };
         // _.find(relations, d => d.id == id).text = text
         const node = _.find(relations, d => d.id == id);
         let parentNode = null;
@@ -721,6 +725,7 @@ class AppView extends Component {
                 nodes = _.filter(nodes, d => d.id != id);
                 // this.setState({relations, nodes})
                 // let rootNode = {id: 'root'}
+                let rootNode = _.clone(data);
                 this.generateStateData(rootNode, nodes, relations);
                 this.setState({
                     data: rootNode,
@@ -789,17 +794,90 @@ class AppView extends Component {
         }, 0);
     };
 
+    render_title(){
+        const { data, nodes, relations } = this.state;
+        console.log("render_title", data, nodes, relations);
+        let root = _(relations).find({id: data.id});
+        let ancestors = []
+        ancestors.push(_.clone(root));
+        while (root && root.parent_id){
+            root = _(relations).find({id: root.parent_id});
+            ancestors.push(_.clone(root));
+        }
+        let ancestors_nodes = _(ancestors).map((node)=>_(nodes).find({ id: node.id} )).reverse().value()
+        console.log("ancestors:", ancestors, ancestors_nodes);
+
+
+        return(
+            <div style={{
+                background: 'fff',
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: "center",
+                justifyContent: "center"
+            }}>
+                <div style={{
+                    width: '80%',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: "start",
+                    justifyContent: "start"
+                }}>
+                    {
+
+                        ancestors_nodes.map((node)=>{
+                            // let text = node.text ? node.text : ''
+                            let text = node.text || "首页"
+
+                            return (
+                                <span
+                                    style={{
+                                        fontSize: '20pt'
+
+                                    }}
+                                    onClick={()=> this.onNodeClick(node.id)}
+                                >
+                                    {text}
+                                    <span style={{fontSize: '14pt'}}>&nbsp; ->&nbsp;</span>
+                                </span>
+
+                            )
+                        })
+                    }
+                    {/*<h2>首页</h2>*/}
+
+
+                </div>
+            </div>
+        )
+    }
     render() {
         return (
             <div style={{background: '#f2f2f2'}}>
-                <div style={{width: 600, background: 'fff'}}>
+
+                <div style={{
+                    background: 'fff',
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}>
+                    {
+                        this.render_title()
+                    }
+                    <hr style={{width: '80%', borderWidth: 0, borderBottomWidth: '1px', borderColor: '#ffffff'}}/>
+
+                    <div style={{width: '80%', background: 'fff'}}>
 
 
-                    <NodeView root children={this.state.data.children} onTabChange={this.onTabChange}
-                          onNodeClick={this.onNodeClick}
-                          onTextChange={this.onTextChange} focusId={this.state.focusId}
-                          onFocusChanged={this.onFocusChanged} onPressEnter={this.onPressEnter}
-                          onDelete={this.onDelete} onDirectionChange={this.onDirectionChange}/>
+                        <NodeView root children={this.state.data.children} onTabChange={this.onTabChange}
+                              onNodeClick={this.onNodeClick}
+                              onTextChange={this.onTextChange} focusId={this.state.focusId}
+                              onFocusChanged={this.onFocusChanged} onPressEnter={this.onPressEnter}
+                              onDelete={this.onDelete} onDirectionChange={this.onDirectionChange}/>
+                    </div>
                 </div>
             </div>
         );
