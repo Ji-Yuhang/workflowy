@@ -413,7 +413,7 @@ class AppView extends Component {
         console.log('setState', data);
     };
     printNode = (relations, node, depth) => {
-        const text = _.find(this.state.nodes, n => n.id == node.id).text
+        const text = _.find(this.state.nodes, {id: node.id}).text
         // 此处死循环了
         console.log(_.times(depth, () => '--')
             .join('') + `${''}: ${text}`);
@@ -573,7 +573,7 @@ class AppView extends Component {
         const left_ids = _.compact(_.map(relations, d => d.left_id));
         const right_ids = _.compact(_.map(relations, d => d.right_id));
         if (_.size(left_ids) != _.size(_.uniq(left_ids))) {
-            console.log('出错的 relations', relations);
+            console.log('出错的 relations', left_ids, right_ids, relations);
 
             alert('错误了');
         }
@@ -675,15 +675,15 @@ class AppView extends Component {
 
         console.log('onDelete', id);
         // _.find(relations, d => d.id == id).text = text
-        const node = _.find(relations, d => d.id == id);
+        let node = _.find(relations, {id: id});
         let parentNode = null;
-        if (node) parentNode = _.find(relations, d => d.id == node.parent_id);
+        if (node) parentNode = _.find(relations,{id: node.parent_id});
         let leftNode = null;
-        if (node) leftNode = _.find(relations, d => d.id == node.left_id);
+        if (node) leftNode = _.find(relations, {id: node.left_id});
         let rightNode = null;
-        if (node) rightNode = _.find(relations, d => d.id == node.right_id);
+        if (node) rightNode = _.find(relations, {id: node.right_id});
         let parentParentNode = null;
-        if (parentNode) parentParentNode = _.find(relations, d => d.id == parentNode.parent_id);
+        if (parentNode) parentParentNode = _.find(relations, {id: parentNode.parent_id});
 
 
         console.log('curentNode', node);
@@ -696,7 +696,7 @@ class AppView extends Component {
             console.log('only one node , skip delete ');
             return;
         }
-        const children = _.find(relations, d => d.parent_id == id);
+        let children = _.find(relations, {parent_id: id});
         if (_.isEmpty(children)) {
             // DO Delete
             console.log(' DO Delete ');
@@ -718,7 +718,10 @@ class AppView extends Component {
                 new_releation = leftNode;
             } else if (parentNode) new_releation = parentNode;
             const focusId = new_releation ? new_releation.id : null;
-            this.check(_.clone(relations));
+            const temp_relations = _.filter(relations, d => d.id != id);
+            this.check(_.clone(temp_relations));
+
+            // this.check(_.clone(relations));
 
             this.setState({ focusId }, () => {
                 relations = _.filter(relations, d => d.id != id);

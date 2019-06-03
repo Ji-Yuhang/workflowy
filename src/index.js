@@ -7,7 +7,8 @@ const app = dva();
 
 // 2. Plugins
 // app.use({});
-setAuthenticationToken('cjETVWtfzWey_KpSyYMs')
+// fRz2wsFPp8adoTxi7ZCV
+setAuthenticationToken('fRz2wsFPp8adoTxi7ZCV')
 setConfiguration('API_ROOT', '');
 
 // 3. Model
