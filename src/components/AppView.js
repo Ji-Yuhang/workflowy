@@ -857,22 +857,25 @@ class AppView extends Component {
     }
     render() {
         return (
-            <div style={{background: '#f2f2f2'}}>
+            <div style={{background: '#f2f2f2', minHeight: '1200px', width: "100%", height: '1200px'}}>
 
                 <div style={{
-                    background: 'fff',
+                    background: '#fff',
                     width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: "center",
-                    justifyContent: "center"
+                    // justifyContent: "center",
+                    // backgroundColor: "white",
+                    height: "100%",
+                    marginTop: "5vh",
                 }}>
                     {
                         this.render_title()
                     }
                     <hr style={{width: '80%', borderWidth: 0, borderBottomWidth: '1px', borderColor: '#ffffff'}}/>
 
-                    <div style={{width: '80%', background: 'fff'}}>
+                    <div style={{width: '80%', background: '#fff'}}>
 
 
                         <NodeView root children={this.state.data.children} onTabChange={this.onTabChange}

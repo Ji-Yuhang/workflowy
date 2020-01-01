@@ -165,6 +165,7 @@ class NodeView extends Component {
                     onFocus={this.onFocus}
                     onBlur={this.onBlur}
                     onPressEnter={this.onPressEnter}
+                    autoComplete={false}
                 />
             </div>
 
