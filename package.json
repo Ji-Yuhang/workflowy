@@ -18,6 +18,7 @@
     "immutable": "^3.8.2",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
+    "node-opml-parser": "^1.0.0",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",
     "standard-http-error": "^2.0.1",

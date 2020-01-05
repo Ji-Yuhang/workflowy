@@ -1,0 +1,319 @@
+<?xml version="1.0"?>
+<opml version="2.0">
+  <head>
+    <ownerEmail>
+      yuhang.silence@gmail.com
+    </ownerEmail>
+  </head>
+  <body>
+    <outline text="TodoList">
+      <outline _complete="true" text="业务内勤选择后，不能再出现，否则有可能选中同一个人两次" />
+      <outline _complete="true" text="销售订单编号规则优化" />
+      <outline _complete="true" text="采购搜索商品Bug，分页查询丢失上次搜索数据，过滤掉数据没有颜色" />
+      <outline _complete="true" text="点击按钮，publisher消息给rabbitmq，同步某个model数据" />
+      <outline text="G2表格由南丁格尔玫瑰图，修改为饼状图，增加日期选择" />
+      <outline _complete="true" text="询问产品，作废功能的具体需求" />
+      <outline _complete="true" text="某个Table分页有Bug">
+        <outline text=" 客商信息查询分页" />
+      </outline>
+      <outline text="用户导出excel" />
+    </outline>
+    <outline text="记忆">
+      <outline text="编码" />
+      <outline text="存储" />
+      <outline text="提取" />
+      <outline text="感官记忆" />
+      <outline text="短时记忆" />
+      <outline text="长时记忆" />
+      <outline text="工作记忆" />
+      <outline text="问题">
+        <outline text="知道和记得的区别, know remember">
+          <outline text="知道">
+            <outline text="张三：　那个人是谁" />
+            <outline text="我曾经见过他，但是不知道他的信息" />
+          </outline>
+          <outline text="记得">
+            <outline text="张三：　那个人是谁" />
+            <outline text="那个人叫李四，是个程序员（清楚的知道）" />
+          </outline>
+        </outline>
+      </outline>
+      <outline text="记忆测量实验表明：提高识别率可以">
+        <outline text="语音处理">
+          <outline text="押韵" />
+        </outline>
+        <outline text="语义处理">
+          <outline text="判断单词填入句子是否读的通顺" />
+        </outline>
+      </outline>
+      <outline text="但是逻辑上循环论证，无法确立一个关于记忆处理层次深度的客观标准" />
+    </outline>
+    <outline text="数学">
+      <outline text="线性代数">
+        <outline text="名词解释">
+          <outline text="#数值代数" />
+          <outline text="#邻域" />
+          <outline text="#向量">
+            <outline text="运算">
+              <outline text="加法" />
+              <outline text="一种自然的叫法 #数量乘法 ， 严格称 #标量乘法 至少也称 #纯量乘法" />
+              <outline text="在一种 #坐标系 中 X Y = Z，但是在另一种 #坐标系 中， 分别对应的向量相乘  x y 不一定 z" />
+              <outline text="所有分量为0的向量是 #零向量" />
+            </outline>
+            <outline text="#公理">
+              <outline text="(cc`)X = c(c`)X" />
+              <outline text="1X = X" />
+              <outline text="X + Y =  Y + X" />
+              <outline text="( X + Y ) + Z = X + ( Y + Z )" />
+              <outline text="X + O = X" />
+              <outline text="X + ( -1X) = O " />
+              <outline text="c ( X + Y ) = cX + cY" />
+              <outline text="(c + c`)X= cX + c`X" />
+            </outline>
+            <outline text="套用 #向量 已知定理可以变的通透" _note="就好像程序开发中，将功能模块和 用户界面 分开能提高移植性。就好像把算法和数据的类型分开">
+              <outline text="#微分方程 的解" />
+              <outline text="#量子力学 中 #量子系统 的状态" />
+            </outline>
+            <outline text="强调位置的向量称 #位置向量" />
+          </outline>
+          <outline text="#基底" />
+          <outline text="#标量">
+            <outline text="不随着坐标变化而改变的值成为 #标量 scalar" />
+          </outline>
+          <outline text="#反变" />
+          <outline text="#共变" />
+          <outline text="#线性空间">
+            <outline text="满足 #公理 中性质的世界，被称为 #线性空间 或 #向量空间" />
+            <outline text="这个空间里只能做 #加法 和 #数量乘法" />
+            <outline text="#线性空间 没有长度和角度的概念，只有方向" />
+            <outline text="#基准">
+              <outline text="选定 #基准向量 e1 和 e2后， 通过 沿着e1走3步，再沿着e2走2步的方式制定位置" />
+            </outline>
+            <outline text="#基底">
+              <outline text="作为基准的一组向量叫做 #基底 ，其中的成员向量 e1 e2 成为 #基向量" />
+              <outline text="沿着 #基准向量 走的步数叫做 #坐标" />
+              <outline text="#可逆性 #秩 #特征值 等概念都与 #基底 的选择无关" />
+              <outline text="构成 #基底 的条件">
+                <outline text="1. 当前空间中 任何向量 V 都可以表示成 V = x1 e1 + .... + xn en" _note="任意一块土地都可以赋予地址" />
+                <outline text="2. 并且这种表示方法是唯一的" _note="一块土地只有一个地址">
+                  <outline text="数学上简洁定义 若u1e1 + ... + unen = O 则 u1 = .. = un = 0" />
+                </outline>
+              </outline>
+            </outline>
+            <outline text="#线性组合 ">
+              <outline text="可以用 u1e1 + ... + unen  表示出来的向量，称为 e1...en的 #线性组合">
+                <outline text="则 (e1, e2, ..., en)称为 #基底" />
+              </outline>
+            </outline>
+            <outline text="#维数">
+              <outline text="#基向量 的个数 = #维数 = 坐标的分量数" />
+              <outline text="无论怎么选择 #基底 基向量的个数都是固定不变的" />
+              <outline text="#有限维" />
+              <outline text="#无限维">
+                <outline text="迥然不同  #收敛性" />
+              </outline>
+            </outline>
+          </outline>
+          <outline text="#仿射空间">
+            <outline text="从 #线性空间 去掉 #原点 ，得到 #仿射空间" />
+          </outline>
+          <outline text="#内积空间" _note="定义了长度和角度的加强版线性空间">
+            <outline text="#模长 性质">
+              <outline text="||X|| &amp;gt;= 0" />
+              <outline text="||X|| = 0 等价于 X = O" />
+              <outline text="对于实数c，有 ||cX|| = |c| ||X||" />
+            </outline>
+            <outline text="#正交 （直角）">
+              <outline text="当向量满足 ||X + Y||^2 = ||X||^2 + ||Y||^2 时，称 向量 X 和 Y #正交" />
+              <outline text="#TODO">
+                <outline text="第一章 12页 ?1.8 中对于内积的疑问" />
+                <outline text="《程序员的数学》附录E 1.2" />
+              </outline>
+            </outline>
+          </outline>
+          <outline text="#外积 （ #向量积 ）">
+            <outline text="二维空间向量的 #外积 是数？" />
+            <outline text="三维空间向量的 #外积 是向量？" />
+            <outline text="那么四维空间向量的 #外积 是什么？ #疑问" />
+            <outline text="三维向量 X Y的外积 X x Y 的长度与以X Y 为边的平行四边形的面积相等 #疑问">
+              <outline text="长度与面积怎么会相等 #疑问 单位明明不一致？" />
+            </outline>
+            <outline text="#张量" />
+          </outline>
+          <outline text="#平直">
+            <outline text="对于矩阵A，如果 X + Y = Z 成立，则 Ax + Ay = Az也成立" />
+            <outline text="同上，若cx = y， 则c(Ax) = cy成立" />
+          </outline>
+          <outline text="#线性映射">
+            <outline text="满足 f(x+y) = f(x) + f(y) 以及 f(cx) = cf(x)的映射f称为 #线性映射" />
+            <outline text="#矩阵 就是 #映射">
+              <outline text="n维向量X乘以 m x n 矩阵A，得到一个m维向量Y，也就是说制定矩阵A，就确定了从向量到另外一个向量的映射" />
+            </outline>
+          </outline>
+          <outline text="#数">
+            <outline text="当分量（元素）是 #实数 时，称 #实向量 #实矩阵" />
+            <outline text="当分量（元素）是 #复数 时，称 #复向量 #复矩阵" />
+          </outline>
+          <outline text="#矩阵">
+            <outline text="定义">
+              <outline text="m x n 矩阵 A， 表示从n维空间到m维空间的 #映射" />
+            </outline>
+            <outline text="当行数和列数相同时成为 #方阵 #正方矩阵" />
+            <outline text="#乘方">
+              <outline text="矩阵的0次方是I #单位矩阵 ，前提是不是 #零矩阵 或 含有0为 #特征值 的矩阵" />
+              <outline text="(A+B)^2 = A^2 + AB + BA + B^2" />
+              <outline text="(AB)^2 = ABAB" />
+              <outline text="(A+B)(A-B) = A^2 -AB + BA - B^2" />
+            </outline>
+            <outline text="#零矩阵" _note="所有元素都为0的 #矩阵" />
+            <outline text="#单位矩阵 记为I 或E" _note="对角线为1，其余元素都为0的 #矩阵">
+              <outline text="AI = A" />
+              <outline text="IA = A" />
+            </outline>
+            <outline text="#对角矩阵">
+              <outline text="#对角元素" />
+              <outline text="#非对角元素" />
+              <outline text="#非对角元素 都为0的矩阵成为 #对角矩阵 记为 diag(a1,a2,a3,a4) diag是 diagonal对角线的缩写" />
+              <outline text="#对角矩阵 表示 #映射 沿着坐标轴伸缩，其 #对角元素 是各轴伸缩的倍率" />
+              <outline text="#对角矩阵 乘法 diag(a1,a2,a3... an) * diag(b1,b2,b3...bn) = diag(a1*b1, a2*b2....an*bn)" />
+              <outline text="#对角矩阵 的概念与 #坐标系 的选择有关，使计算变得简单" />
+              <outline text="#单位矩阵 和 #零矩阵 的概念与 #坐标系 的选择 ！！无关！！" />
+            </outline>
+            <outline text="#反对角矩阵" />
+            <outline text="#上三角矩阵" />
+            <outline text="#下三角矩阵" />
+          </outline>
+          <outline text="#行列式  = #体积扩大率 determinant">
+            <outline text="２阶矩阵下，是向量组成的平行四边形的面积" />
+            <outline text="３阶矩阵下，是向量组成的平行６面体的体积" />
+            <outline text="对角矩阵的行列式 = 对角元素的乘积" />
+            <outline text="det A &amp;lt; 0 表示面上下颠倒（右手定则）" />
+            <outline text="矩阵交换列，空间上下翻转， #面积扩大率 det B &amp;lt; 0，det B = - det A, 这是 #行列式 的 #交替性" />
+            <outline text="det(I) = 1" />
+            <outline text="det(AB) = det(A)det(B)" />
+            <outline text="det(AA^-1)=det(A)det(A^-1)=det(I)=1" />
+            <outline text="A=(a1,a2,a3)时det(a1,a2,ca2+a3) = det(A)" />
+            <outline text="det(上三角矩阵 a11 a22 a33) = a11*a22*a33" />
+            <outline text="det(A^T) = det(A) 转置矩阵的行列式和原来相同" />
+            <outline text="#多重线性 #行列式关键">
+              <outline text="行列式某一行或列分解为两行或列相加，det() = det(A)" />
+              <outline text="矩阵某一个行列乘以常数c，行列式乘以c" />
+            </outline>
+            <outline text="det(A+B) != det(A) + det(B)" />
+            <outline text="#交替性 #行列式关键" _note="改变矩阵两行或两列，行列式变为负" />
+            <outline text="#范德蒙 行列式 Vandermonde">
+              <outline text="f(x1,x2,x3) = (x1 - x2)(x1-x3)(x2-x3)" />
+              <outline text="det((1,x1,x1^2) (1,x2,x2^2)(1,x3,x3^2))" />
+            </outline>
+            <outline text="#余子式 minor" />
+            <outline text="#代数余子式 cofactor">
+              <outline text="-1^(i+j) 乘以 余子式" />
+            </outline>
+            <outline text="#伴随矩阵 adjugate matrix">
+              <outline text="#余子矩阵  中每一个元素都是 aij 的代数余子式" />
+              <outline text="#余子矩阵 的转置就是 #伴随矩阵 " />
+              <outline text="adj(A)A = det(A)I" />
+              <outline text="A 的 #逆矩阵  = adj(A) / det(A)" />
+            </outline>
+            <outline text="#雅克比矩阵 （ #Jacobian ）">
+              <outline text="多重积分使用换元法需要用到 #雅克比矩阵" />
+            </outline>
+            <outline text="#压缩扁平化">
+              <outline text="#面积扩大率 det A = 0，即 #行列式 为0" />
+              <outline text="目标 #空间 被压缩成了扁平状态（一条直线），这条直线正是矩阵A 的 #像 （Im A）" />
+              <outline text="#像 的维数成为 #秩" />
+              <outline text="#像 的维数降低，这时 A 时 #奇异矩阵" />
+              <outline text="#列向量 的目标点不再具有 #独立的 方向" />
+              <outline text="#特征向量 在 #压缩扁平化 的变换之下 #特征值 为0" />
+              <outline text="如果按照 #特征向量 的方向选取 #斜坐标系 ">
+                <outline text="#特征值 为0的 #特征向量 P 所在的**直线**上的点全部被变换到了 #原点 上，这条**直线**是 A 的 #核 （Ker A）" />
+                <outline text="以 P 平行的直线上的点全部被压缩到了一点上" />
+                <outline text="也就是说，就算知道 #目标点 ，也无法还原出特点的出发点，因此， #逆矩阵 不存在" />
+                <outline text="原维数 - 被压缩掉的维数 = 剩余的维数，这就是 #维数定理" />
+              </outline>
+            </outline>
+          </outline>
+          <outline text="#秩" />
+          <outline text="#逆矩阵 #逆映射 #正则矩阵 #可逆矩阵 #非奇异矩阵">
+            <outline text="(ABCD)^-1 = D^-1 C^-1 B^-1 A……-1" />
+            <outline text="A A^-1 = I" />
+            <outline text="如果没有发生 #压缩扁平化 ，则有" />
+          </outline>
+          <outline text="#分块矩阵">
+            <outline text="乘法按块计算" />
+            <outline text="#分块对角矩阵">
+              <outline text="#对角区块" />
+            </outline>
+          </outline>
+          <outline text="问题的 #恶劣程度">
+            <outline text="#核">
+              <outline text="对于给定A，在映射满足 Ax = 0的x的集合成为A的 #核 记为 Ker A ，或0空间 null space" />
+              <outline text="与 KerA平行的各元素，在只知道映射后的点的情况下，是无法进行还原的" />
+            </outline>
+            <outline text="#像">
+              <outline text="对于给定A，将x进行各种不同的变换，在A的作用下，y = Ax构成的集合，成为A的 #像 image 记为 Im A #陪域 range" />
+              <outline text="换言之， #像 就是 把原空间通过A变换到目标空间时对应的领域" />
+            </outline>
+            <outline text="#线性方程组的解的存在性和唯一性" />
+            <outline text="#单射 #一一映射 对于相同的结果y，引起它的原因x是唯一的">
+              <outline text="Ker A 仅包含原点 #单射" />
+            </outline>
+            <outline text="#满射 #映射的映射 无论什么结果y，都能找到它的原因x">
+              <outline text="Im A 与目标空间全体（值域）一直 #满射" />
+            </outline>
+            <outline text="#双射" />
+            <outline text="既不是 #单射 又不是 #满射" />
+            <outline text="#维度定理 （秩-零化度定理）" _note="对于m x n矩阵A，有 dim Ker A + dim Im A = n， 其中dim X 表示 X的维度" />
+          </outline>
+          <outline text="#广义逆矩阵" />
+          <outline text="#时间序列分析">
+            <outline text="xt今天的状态由前4天的状态决定 Xt = -0.7 Xt-1 -0.5Xt-2 + 0.2Xt-3 + 0.1Xt-4" />
+            <outline text="X(t)=AX(t-1) 在向量上乘以一个矩阵" />
+            <outline text="#高阶微分" />
+            <outline text="#高阶差分" />
+          </outline>
+          <outline text="#消除常数项">
+            <outline text="#分块矩阵 表示 Ax+b" />
+          </outline>
+          <outline text="#坐标变换 　#TODO #难点">
+            <outline text="同一个空间中，基底的选择方法由很多种，如果由一种能让问题变得简单，就是一个好的基底" />
+            <outline text="#坐标变换 都可以表示为 乘以一个矩阵 的形式" />
+            <outline text="乘以方阵的操作在 #逆矩阵 存在的情况下，可以用 #坐标变换 来解释" />
+            <outline text="#基底变换" />
+          </outline>
+          <outline text="#转置矩阵　transpose A^T表示">
+            <outline text="(AB)^T = B^T A^T" />
+            <outline text="(A^T )^T = A" />
+            <outline text="(A^-1)^T = (A^T)^-1" />
+            <outline text="#复矩阵　下由　#共轭转置">
+              <outline text="有类似上面３个性质" />
+            </outline>
+          </outline>
+          <outline text="#线性方程" />
+          <outline text="#LU分解" />
+          <outline text="#特征向量">
+            <outline text="有些线段在变换的时候只发生了伸缩，而方向没有变化" />
+          </outline>
+          <outline text="#特征值">
+            <outline text="#特征向量 的伸缩率" />
+          </outline>
+          <outline text="#对角化">
+            <outline text="如果按照 #特征向量 的方向选取 #斜坐标系 ，变换的行为就变得和 #对角矩阵 时的情况下一样，这便是 #对角化" />
+            <outline text="#面积扩大率 det A = 所有 #特征值 的积" />
+          </outline>
+          <outline text="#Jordan标准型" />
+          <outline text="#特征值算法" />
+          <outline text="#张量" />
+          <outline text="#外积" />
+          <outline text="#线性变换" />
+          <outline text="#模理论" />
+          <outline text="#一般线性群" />
+          <outline text="#映射" />
+          <outline text="#对角矩阵" />
+          <outline text="分析法" />
+          <outline text="最小二乘法" />
+        </outline>
+      </outline>
+    </outline>
+  </body>
+</opml>

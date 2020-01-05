@@ -22,3 +22,5 @@
   - post content and return new version
 - #tag 标签搜索
 - 导出 markdown, csv, text, mindmap...
+- 导出 OPML
+- 导入 OPML

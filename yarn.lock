@@ -3608,6 +3608,13 @@ node-libs-browser@^0.7.0:
     util "^0.10.3"
     vm-browserify "0.0.4"
 
+node-opml-parser@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npm.taobao.org/node-opml-parser/download/node-opml-parser-1.0.0.tgz#1013d667b9822a2ae166c17af3d40b4228268792"
+  integrity sha1-EBPWZ7mCKirhZsF689QLQigmh5I=
+  dependencies:
+    sax "1.1.5"
+
 node-pre-gyp@^0.6.39:
   version "0.6.39"
   resolved "http://registry.npm.taobao.org/node-pre-gyp/download/node-pre-gyp-0.6.39.tgz#c00e96860b23c0e1420ac7befc5044e1d78d8649"
@@ -5120,6 +5127,11 @@ rx-lite@^3.1.2:
 safe-buffer@5.1.1, safe-buffer@^5.0.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "http://registry.npm.taobao.org/safe-buffer/download/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
+
+sax@1.1.5:
+  version "1.1.5"
+  resolved "https://registry.npm.taobao.org/sax/download/sax-1.1.5.tgz#1da50a8d00cdecd59405659f5ff85349fe773743"
+  integrity sha1-HaUKjQDN7NWUBWWfX/hTSf53N0M=
 
 sax@~1.2.1:
   version "1.2.4"

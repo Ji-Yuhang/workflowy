@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { Affix, Button } from 'antd';
 import NodeView from './NodeView';
 import { relativeTimeRounding } from 'moment';
+const parseOpml = require('node-opml-parser');
+
 import request from '../utils/request';
 import {
     saveWorkflowy,
@@ -124,6 +126,64 @@ class AppView extends Component {
     componentWillUnmount = () => {
         this.save();
     };
+    nodeToOutline = (node, depth)=>{
+        const emptyPrefix = _.times(depth, () => '  ').join('');
+        if (_.isEmpty(node.children)) {
+            return `${emptyPrefix}<outline text="${node.text}" _id="${node.id}" />\n`;
+        } else {
+            // TODO: XML 转移 < > 等
+            const left = `${emptyPrefix}<outline text="${node.text}"  _id="${node.id}">\n`;
+            const childrenOutline = _.map(node.children, (child)=>{
+                return this.nodeToOutline(child, depth+1);
+            })
+            const children = childrenOutline.join("");
+            const right = `${emptyPrefix}</outline>\n`;
+            return left + children + right;
+        }
+
+    }
+    importOPML = () => {
+        // TODO: 导入 opml
+    }
+    exportOPML = () => {
+        // TODO: 使用 xml opml 相关 npm 包实现
+        console.log("exportOPML", this.state);
+        const {data} = this.state
+        const email = localStorage.getItem("Workflowy:Authentication");
+        // <?xml version="1.0"?>
+        const head = `
+
+<opml version="2.0">
+  <head>
+  <ownerEmail>
+    ${email}
+  </ownerEmail>
+</head>
+<body>
+`;
+        const footer = `
+  </body>
+</opml>
+`;
+        const childrenOutline = _.map(data.children, (child)=>{
+            return this.nodeToOutline(child, 1);
+        })
+        const children = childrenOutline.join("");
+        const opmlText = head + children + footer;
+        console.log("opmlText", opmlText);
+
+        // TODO: OPML parse 库 出错
+        parseOpml(opmlText, (err, items) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+
+            // items is a flat array of all items in opml
+            console.log(items);
+          });
+
+    }
     save = () => {
         const json = this.toJson();
         localStorage.setItem('NodeJSON', json);
@@ -848,6 +908,8 @@ class AppView extends Component {
                             )
                         })
                     }
+                    <Button onClick={this.exportOPML}>导出OPML</Button>
+                    <Button onClick={this.importOPML} disabled>导入OPML</Button>
                     {/*<h2>首页</h2>*/}
 
 
