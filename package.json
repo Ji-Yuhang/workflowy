@@ -16,7 +16,7 @@
     "bluebird": "^3.5.1",
     "dva": "^1.2.1",
     "immutable": "^3.8.2",
-    "jquery": "^3.2.1",
+    "jquery": "^3.4.0",
     "lodash": "^4.17.4",
     "node-opml-parser": "^1.0.0",
     "react": "^15.4.0",
